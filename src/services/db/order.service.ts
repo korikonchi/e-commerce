@@ -46,7 +46,7 @@ class OrderService {
 
     const newOrder = await prisma.order.create({
       data: {
-        // addressId,
+        address: addressId,
         totalPrice: 0,
         status: 'pending',
         userId: currentUser.id
