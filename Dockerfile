@@ -29,7 +29,10 @@ RUN apk add --no-cache openssl
 COPY --from=builder /usr/src/app/dist ./dist
 COPY --from=builder /usr/src/app/package*.json ./
 COPY --from=builder /usr/src/app/prisma ./prisma
-COPY wait-for-db.sh /usr/src/app/wait-for-db.sh
+COPY wait-db.sh /usr/src/app/wait-db.sh
+
+# Dar permisos de ejecución al script
+RUN chmod +x /usr/src/app/wait-for-db.sh
 
 # Instalar solo las dependencias de producción
 RUN npm install --production
@@ -38,4 +41,4 @@ RUN npm install --production
 EXPOSE 5000
 
 # Comando para ejecutar la aplicación
-CMD ["sh", "-c", "chmod +x /usr/src/app/wait-for-db.sh && /usr/src/app/wait-for-db.sh && npx prisma migrate deploy && npm start"]
+CMD ["sh", "-c", "/usr/src/app/wait-db.sh && npx prisma migrate deploy && npm start"]

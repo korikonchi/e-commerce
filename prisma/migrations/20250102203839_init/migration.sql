@@ -37,7 +37,6 @@ CREATE TABLE `Product` (
     `main_image` VARCHAR(191) NOT NULL,
     `categoryId` INTEGER NOT NULL,
     `shopId` INTEGER NULL,
-    `status` BOOLEAN NOT NULL DEFAULT true,
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updatedAt` DATETIME(3) NULL DEFAULT CURRENT_TIMESTAMP(3),
 
@@ -117,7 +116,7 @@ CREATE TABLE `CartItem` (
 CREATE TABLE `Order` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
     `userId` INTEGER NOT NULL,
-    `address` VARCHAR(191) NOT NULL DEFAULT '',
+    `addressId` INTEGER NOT NULL,
     `couponCode` VARCHAR(191) NULL,
     `totalPrice` DOUBLE NOT NULL,
     `totalQuantity` INTEGER NOT NULL DEFAULT 1,
@@ -195,6 +194,9 @@ ALTER TABLE `CartItem` ADD CONSTRAINT `CartItem_cartId_fkey` FOREIGN KEY (`cartI
 
 -- AddForeignKey
 ALTER TABLE `Order` ADD CONSTRAINT `Order_userId_fkey` FOREIGN KEY (`userId`) REFERENCES `User`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `Order` ADD CONSTRAINT `Order_addressId_fkey` FOREIGN KEY (`addressId`) REFERENCES `Address`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE `Order` ADD CONSTRAINT `Order_couponCode_fkey` FOREIGN KEY (`couponCode`) REFERENCES `Coupon`(`code`) ON DELETE SET NULL ON UPDATE CASCADE;

@@ -13,7 +13,10 @@ class AuthService {
     const { email, password, firstName, lastName, avatar } = requestBody
 
     const userByEmail: User | null = await this.getUserByEmail(email)
-    if (!userByEmail) {
+
+    console.log(userByEmail)
+
+    if (userByEmail) {
       throw new NotFoundException('Email must be unique')
     }
 
@@ -48,6 +51,7 @@ class AuthService {
   public async login(requestBody: IAuthLogin) {
     // 1) Get user by email
     const user: User | null = await this.getUserByEmail(requestBody.email)
+
     // 2) Check email exist
     if (!user) {
       throw new BadRequestException('Invalid Credentials')
