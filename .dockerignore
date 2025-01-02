@@ -1,0 +1,53 @@
+# Ignorar node_modules (se instalarán dentro del contenedor)
+node_modules/
+
+# Ignorar la carpeta de distribución (se generará durante la construcción)
+dist/
+
+# Ignorar archivos de configuración local
+.env
+.env.local
+.env.development
+.env.test
+.env.production
+
+# Ignorar archivos de registro y debug
+*.log
+logs/
+
+# Ignorar archivos de IDE y editor
+.vscode/
+.idea/
+
+# Ignorar archivos de sistema
+.DS_Store
+
+# Ignorar archivos de versiones (Git, SVN, etc.)
+.git/
+.gitignore
+.svn/
+
+# Ignorar archivos de dependencias de desarrollo
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Ignorar archivos de cobertura de pruebas
+coverage/
+
+# Ignorar archivos de TypeScript (opcional, si no quieres copiar el código fuente)
+*.ts
+*.tsx
+!tsconfig.json
+
+# Ignorar archivos de configuración de TypeScript (opcional)
+tsconfig.*.json
+
+# Ignorar archivos de configuración de ESLint y Prettier
+.eslintrc*
+.prettierrc*
+
+# Ignorar archivos de configuración de Docker
+docker-compose.yml
+docker-compose.*.yml
+Dockerfile*
