@@ -3,6 +3,7 @@ kind: Service
 metadata:
   name: zookeeper
 spec:
+  clusterIP: None # Headless Service
   ports:
     - port: 2181
       targetPort: 2181

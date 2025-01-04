@@ -70,8 +70,6 @@ class Server {
     const port = parseInt(process.env.PORT!) || 5050
     await connectKafka()
 
-    // await emitUserCreated('hola')
-    // await runConsumer()
     this.app.listen(port, () => {
       console.log(`App listen to port ${port}`)
     })

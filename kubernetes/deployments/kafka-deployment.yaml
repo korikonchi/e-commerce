@@ -1,9 +1,10 @@
 apiVersion: apps/v1
-kind: Deployment
+kind: StatefulSet
 metadata:
   name: kafka
 spec:
-  replicas: 1
+  serviceName: kafka
+  replicas: 3
   selector:
     matchLabels:
       app: kafka
@@ -16,16 +17,24 @@ spec:
         - name: kafka
           image: bitnami/kafka:latest
           ports:
-            - containerPort: 9092
+            - containerPort: 9092 # Puerto base para el primer listener
+            - containerPort: 9093 # Puerto para el segundo listener
+            - containerPort: 9094 # Puerto para el tercer listener
           env:
             - name: KAFKA_CFG_ZOOKEEPER_CONNECT
-              value: 'zookeeper:2181' # Conecta a Zookeeper
+              value: 'zookeeper-0.zookeeper:2181,zookeeper-1.zookeeper:2181,zookeeper-2.zookeeper:2181'
             - name: ALLOW_PLAINTEXT_LISTENER
-              value: 'yes' # Permite conexiones sin SSL
+              value: 'yes'
             - name: KAFKA_CFG_ADVERTISED_LISTENERS
-              value: 'PLAINTEXT://kafka:9092' # Configura el listener
+              value: 'PLAINTEXT_0://kafka-0.kafka:9092,PLAINTEXT_1://kafka-1.kafka:9093,PLAINTEXT_2://kafka-2.kafka:9094'
+            - name: KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP
+              value: 'PLAINTEXT_0:PLAINTEXT,PLAINTEXT_1:PLAINTEXT,PLAINTEXT_2:PLAINTEXT'
+            - name: KAFKA_CFG_LISTENERS
+              value: 'PLAINTEXT_0://:9092,PLAINTEXT_1://:9093,PLAINTEXT_2://:9094'
+            - name: KAFKA_CFG_INTER_BROKER_LISTENER_NAME
+              value: 'PLAINTEXT_0' # Usar el primer listener para la comunicación entre brokers
             - name: KAFKA_CFG_AUTO_CREATE_TOPICS_ENABLE
-              value: 'true' # Permite la creación automática de temas
+              value: 'true'
           resources:
             requests:
               cpu: '1000m'

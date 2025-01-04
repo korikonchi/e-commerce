@@ -2,65 +2,54 @@ import { Kafka, logLevel, Partitioners } from 'kafkajs'
 
 const kafka = new Kafka({
   clientId: 'kafka-backend',
-  brokers: [process.env.KAFKA_SERVICE!], // Usa 127.0.0.1 en lugar de localhost
-  logLevel: logLevel.DEBUG
+  brokers: [process.env.KAFKA_SERVICE!],
+  logLevel: logLevel.DEBUG,
+  retry: {
+    initialRetryTime: 1000, // Initial retry delay (1 second)
+    maxRetryTime: 60000, // Maximum retry delay (60 seconds)
+    retries: 15 // Increase the number of retries
+  }
 })
 
-const producer = kafka.producer()
-// const consumer = kafka.consumer({ groupId: 'test-group' })
-// const admin = kafka.admin()
+// const producer = kafka.producer({
+//   createPartitioner: Partitioners.DefaultPartitioner // Try a different partitioner
+// })
+const admin = kafka.admin()
 
 export async function connectKafka() {
   try {
-    await producer.connect()
-    console.log('Kafka connected')
+    // await producer.connect()
+    await admin.connect()
+
+    const topics = await admin.listTopics()
+    if (!topics.includes('test-topic')) {
+      await admin.createTopics({
+        topics: [
+          {
+            topic: 'test-topic',
+            numPartitions: 3,
+            replicationFactor: 1
+          }
+        ]
+      })
+      console.log('Topic "test-topic" created successfully')
+    } else {
+      console.log('Topic "test-topic" already exists')
+    }
+
+    // await producer.send({
+    //   topic: 'test-topic',
+    //   messages: [{ value: JSON.stringify('test') }]
+    // })
+    // console.log('Message sent successfully')
+
+    console.log('Kafka connected and topic created')
   } catch (error) {
-    console.error('Failed to connect to Kafka:', error)
-  }
-  //   await consumer.connect()
-  //   await consumer.subscribe({ topic: 'test-topic', fromBeginning: true })
-  await new Promise((resolve) => setTimeout(resolve, 10000))
-
-  //   await admin.connect()
-  //   const clusterMetadata = await admin.describeCluster()
-  //   console.log('Cluster metadata:', clusterMetadata)
-
-  //   await admin.createTopics({
-  //     topics: [
-  //       {
-  //         topic: 'test-topic',
-  //         numPartitions: 1,
-  //         replicationFactor: 1
-  //       }
-  //     ]
-  //   })
-  //   await admin.disconnect()
-
-  //   await consumer.subscribe({ topic: 'test-topic', fromBeginning: true })
-
-  console.log('Kafka connected')
-}
-
-// export async function runConsumer() {
-//   await consumer.run({
-//     eachMessage: async ({ topic, partition, message }) => {
-//       console.log({
-//         topic,
-//         partition,
-//         value: message.value?.toString()
-//       })
-//     }
-//   })
-// }
-
-export const emitUserCreated = async (user: string) => {
-  try {
-    await producer.send({
-      topic: 'test-topic',
-      messages: [{ value: JSON.stringify(user) }]
-    })
-    console.log(`Mensaje enviado: ${user}`)
-  } catch (error) {
-    console.error('Failed to send message:', error)
+    console.error('Error:', error)
+    // Retry logic can be added here
+  } finally {
+    await admin.disconnect()
+    // await producer.disconnect()
+    console.log('Kafka disconnected')
   }
 }

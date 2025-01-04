@@ -3,6 +3,7 @@ kind: Service
 metadata:
   name: kafka
 spec:
+  clusterIP: None # Headless Service
   ports:
     - port: 9092
       targetPort: 9092

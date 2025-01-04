@@ -48,6 +48,16 @@ spec:
                 secretKeyRef:
                   name: backend-secret
                   key: REDIS_URL
+            - name: KAFKA_SERVICE
+              valueFrom:
+                secretKeyRef:
+                  name: backend-secret
+                  key: KAFKA_SERVICE
+            - name: SESSION_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: backend-secret
+                  key: SESSION_SECRET
           resources:
             requests:
               cpu: '100m'

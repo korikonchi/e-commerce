@@ -2,7 +2,10 @@ import { RedisStore } from 'connect-redis'
 import redisCache from './services/cache/redis.cache'
 import session from 'express-session'
 
-const sessionSecret = process.env.SESSION_SECRET!
+const sessionSecret = process.env.SESSION_SECRET
+if (!sessionSecret) {
+  throw new Error('SESSION_SECRET was not setted')
+}
 
 // Configura el almacenamiento de sesiones con Redis
 const clientRedis = new redisCache().client
