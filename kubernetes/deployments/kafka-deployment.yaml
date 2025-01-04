@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kafka
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kafka
+  template:
+    metadata:
+      labels:
+        app: kafka
+    spec:
+      containers:
+        - name: kafka
+          image: bitnami/kafka:latest
+          ports:
+            - containerPort: 9092
+          env:
+            - name: KAFKA_CFG_ZOOKEEPER_CONNECT
+              value: 'zookeeper:2181' # Conecta a Zookeeper
+            - name: ALLOW_PLAINTEXT_LISTENER
+              value: 'yes' # Permite conexiones sin SSL
+            - name: KAFKA_CFG_ADVERTISED_LISTENERS
+              value: 'PLAINTEXT://kafka:9092' # Configura el listener
+            - name: KAFKA_CFG_AUTO_CREATE_TOPICS_ENABLE
+              value: 'true' # Permite la creación automática de temas
+          resources:
+            requests:
+              cpu: '1000m'
+              memory: '1024Mi'
+            limits:
+              cpu: '2000m'
+              memory: '2048Mi'

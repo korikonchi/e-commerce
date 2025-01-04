@@ -6,6 +6,9 @@ import { HTTP_STATUS } from './globals/constants/http'
 import { MulterError } from 'multer'
 import cors from 'cors'
 
+import { sessionConfig } from './sessionRedis'
+import { connectKafka } from './kafka'
+
 class Server {
   private app: Application
 
@@ -21,7 +24,7 @@ class Server {
   }
 
   private setupMiddleware(): void {
-    this.app.use(cors())
+    this.app.use(cors({ credentials: true }))
     // this.app.use(
     //   cors({
     //     origin: process.env.CLIENT_URL!,
@@ -29,6 +32,7 @@ class Server {
     //     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']
     //   })
     // )
+    this.app.use(sessionConfig)
     this.app.use(cookieParser())
     this.app.use(express.json()) // req.body
     this.app.use('/images', express.static('images'))
@@ -62,9 +66,12 @@ class Server {
     })
   }
 
-  private startServer() {
+  private async startServer() {
     const port = parseInt(process.env.PORT!) || 5050
+    await connectKafka()
 
+    // await emitUserCreated('hola')
+    // await runConsumer()
     this.app.listen(port, () => {
       console.log(`App listen to port ${port}`)
     })
