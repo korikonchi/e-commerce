@@ -58,6 +58,11 @@ spec:
                 secretKeyRef:
                   name: backend-secret
                   key: SESSION_SECRET
+            - name: KAFKA_TOPIC
+              valueFrom:
+                secretKeyRef:
+                  name: backend-secret
+                  key: KAFKA_TOPIC
           resources:
             requests:
               cpu: '100m'

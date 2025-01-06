@@ -7,7 +7,7 @@ import { MulterError } from 'multer'
 import cors from 'cors'
 
 import { sessionConfig } from './sessionRedis'
-import { connectKafka } from './kafka'
+import { startConsumer } from './kafka'
 
 class Server {
   private app: Application
@@ -68,7 +68,8 @@ class Server {
 
   private async startServer() {
     const port = parseInt(process.env.PORT!) || 5050
-    await connectKafka()
+    process.env.NODE_ENV !== 'development' && startConsumer(process.env.KAFKA_TOPIC || 'my-topic')
+    console.log(process.env.KAFKA_TOPIC, process.env.KAFKA_SERVICE)
 
     this.app.listen(port, () => {
       console.log(`App listen to port ${port}`)

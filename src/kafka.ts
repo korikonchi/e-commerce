@@ -1,55 +1,35 @@
-import { Kafka, logLevel, Partitioners } from 'kafkajs'
+import { Kafka, Consumer, Producer } from 'kafkajs'
+import dotenv from 'dotenv'
+
+dotenv.config()
 
 const kafka = new Kafka({
-  clientId: 'kafka-backend',
-  brokers: [process.env.KAFKA_SERVICE!],
-  logLevel: logLevel.DEBUG,
-  retry: {
-    initialRetryTime: 1000, // Initial retry delay (1 second)
-    maxRetryTime: 60000, // Maximum retry delay (60 seconds)
-    retries: 15 // Increase the number of retries
-  }
+  clientId: 'my-app',
+  brokers: [process.env.KAFKA_SERVICE || 'localhost:9092']
 })
 
-// const producer = kafka.producer({
-//   createPartitioner: Partitioners.DefaultPartitioner // Try a different partitioner
-// })
-const admin = kafka.admin()
+const consumer: Consumer = kafka.consumer({ groupId: 'my-group' })
 
-export async function connectKafka() {
-  try {
-    // await producer.connect()
-    await admin.connect()
+export const startConsumer = async (topic: string) => {
+  await consumer.connect()
+  await consumer.subscribe({ topic, fromBeginning: true })
 
-    const topics = await admin.listTopics()
-    if (!topics.includes('test-topic')) {
-      await admin.createTopics({
-        topics: [
-          {
-            topic: 'test-topic',
-            numPartitions: 3,
-            replicationFactor: 1
-          }
-        ]
+  await consumer.run({
+    eachMessage: async ({ topic, partition, message }) => {
+      console.log({
+        value: message.value?.toString()
       })
-      console.log('Topic "test-topic" created successfully')
-    } else {
-      console.log('Topic "test-topic" already exists')
     }
+  })
+}
 
-    // await producer.send({
-    //   topic: 'test-topic',
-    //   messages: [{ value: JSON.stringify('test') }]
-    // })
-    // console.log('Message sent successfully')
+const producer: Producer = kafka.producer()
 
-    console.log('Kafka connected and topic created')
-  } catch (error) {
-    console.error('Error:', error)
-    // Retry logic can be added here
-  } finally {
-    await admin.disconnect()
-    // await producer.disconnect()
-    console.log('Kafka disconnected')
-  }
+export const sendMessage = async (topic: string, message: string) => {
+  await producer.connect()
+  await producer.send({
+    topic,
+    messages: [{ value: message }]
+  })
+  await producer.disconnect()
 }

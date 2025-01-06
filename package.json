@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "dev": "nodemon",
+    "di": "bash -c 'chmod +x dev_init.sh && ./dev_init.sh'",
     "build": "rimraf ./dist && tsc && tsc-alias",
     "start": "node dist/index.js",
     "lint": "eslint .",

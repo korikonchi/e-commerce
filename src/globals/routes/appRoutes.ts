@@ -13,8 +13,10 @@ import reviewRoute from '~/features/review/route/review.route'
 import authRoute from '~/features/user/route/auth.route'
 import userRoute from '~/features/user/route/user.route'
 import wishlistRoute from '~/features/wishlist/route/wishlist.route'
+import kafkaRoute from '~/features/user/route/kafka.route'
 
 const appRoutes = (app: Application) => {
+  app.use('/api/v1/kafka', kafkaRoute)
   app.use('/api/v1/users', userRoute)
   app.use('/api/v1/auth', authRoute)
   app.use('/api/v1/categories', categoryRoute)
