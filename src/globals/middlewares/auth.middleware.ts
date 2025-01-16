@@ -5,13 +5,11 @@ import { redisHandle } from '~/services/cache/client.cache'
 import { OauthService } from '~/oauth2'
 
 export async function verifyUser(req: Request, res: Response, next: NextFunction) {
-  console.log(req.cookies)
-
   const sessionId = req.cookies['backend.sid'].split('.')[0].split(':')[1]
 
-  const sessonRedis = await redisHandle.get(`backend:sess:${sessionId}`)
+  const sessionRedis = await redisHandle.get(`backend:sess:${sessionId}`)
 
-  if (!req.cookies.accessToken || !sessonRedis) {
+  if (!req.cookies.accessToken || !sessionRedis) {
     throw new UnAuthorizedException('invalid sessiom, please login again!')
   }
 

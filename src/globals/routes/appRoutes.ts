@@ -14,6 +14,7 @@ import authRoute from '~/features/user/route/auth.route'
 import userRoute from '~/features/user/route/user.route'
 import wishlistRoute from '~/features/wishlist/route/wishlist.route'
 import kafkaRoute from '~/features/user/route/kafka.route'
+import { doubleCsrfProtection } from '~/csrf'
 
 const appRoutes = (app: Application) => {
   app.use('/api/v1/kafka', kafkaRoute)
