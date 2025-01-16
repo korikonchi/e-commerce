@@ -2,7 +2,7 @@ import { REDIS_KEY } from '~/globals/constants/redis.keys'
 import RedisCache from './redis.cache'
 import { Category, Product } from '@prisma/client'
 
-const redisCache: RedisCache = new RedisCache()
+const redisCache: RedisCache = RedisCache.getInstance()
 
 class ProductCache {
   public async getProducts(key: string) {

@@ -8,7 +8,7 @@ if (!sessionSecret) {
 }
 
 // Configura el almacenamiento de sesiones con Redis
-const clientRedis = new redisCache().client
+const clientRedis = redisCache.getInstance().client
 
 const redisStore = new RedisStore({
   client: clientRedis,
@@ -25,7 +25,7 @@ export const sessionConfig = session({
     secure: process.env.NODE_ENV === 'production', // Solo enviar cookies sobre HTTPS en producción
     httpOnly: true, // Evita acceso a la cookie desde JavaScript
     sameSite: 'strict', // Previene ataques CSRF
-    maxAge: 1000 * 60 * 2
+    maxAge: 1000 * 60 * 20
   },
   name: 'backend.sid', // Nombre de la cookie de sesión
   rolling: true, // Renueva la cookie en cada solicitud
