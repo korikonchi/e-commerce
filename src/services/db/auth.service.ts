@@ -1,12 +1,12 @@
 import { User } from '@prisma/client'
 import { prisma } from '~/prisma'
 import jwt from 'jsonwebtoken'
-import { NextFunction } from 'express'
 import { BadRequestException, ForbiddenException, NotFoundException } from '~/globals/middlewares/error.middleware'
 import { IAuthLogin, IAuthRegister } from '~/features/user/interface/auth.interface'
 import bcrypt from 'bcrypt'
 import crypto from 'node:crypto'
 import { email as emailSender } from '~/globals/helpers/email'
+import { OauthService } from '~/oauth2'
 
 class AuthService {
   public async addUser(requestBody: IAuthRegister) {
@@ -43,7 +43,7 @@ class AuthService {
       role: newUser.role
     }
 
-    const accessToken: string = this.generateJWT(payload)
+    const accessToken: string = OauthService.generateToken(payload)
 
     return accessToken
   }
@@ -76,7 +76,7 @@ class AuthService {
       avatar: user.avatar,
       role: user.role
     }
-    const accessToken: string = await this.generateJWT(payload)
+    const accessToken: string = await OauthService.generateToken(payload)
 
     return accessToken
   }
@@ -89,8 +89,20 @@ class AuthService {
     })
   }
 
-  private generateJWT(payload: any) {
-    return jwt.sign(payload, process.env.JWT_SECRET!, { expiresIn: '1d' })
+  public async callback(code: string) {
+    if (!code) {
+      throw new BadRequestException('authorization code did not provided')
+    }
+
+    // Obtener el token de acceso
+    const tokenResponse = await OauthService.getAccessToken(code as string)
+    const { id_token } = tokenResponse
+
+    const userInfo = await OauthService.getUserInfo(id_token)
+
+    const payload = { name: userInfo.name }
+    // Generar un token JWT
+    return OauthService.generateToken(payload)
   }
 
   public async isEmailAlreadyExist(email: string) {

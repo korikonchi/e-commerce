@@ -18,7 +18,7 @@ import kafkaRoute from '~/features/user/route/kafka.route'
 const appRoutes = (app: Application) => {
   app.use('/api/v1/kafka', kafkaRoute)
   app.use('/api/v1/users', userRoute)
-  app.use('/api/v1/auth', authRoute)
+  app.use('/auth', authRoute)
   app.use('/api/v1/categories', categoryRoute)
   app.use('/api/v1/products', productRoute)
   app.use('/api/v1/product-images', productImagesRoute)

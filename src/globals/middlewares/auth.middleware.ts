@@ -1,16 +1,23 @@
 import { NextFunction, Request, Response } from 'express'
 import { ForbiddenException, NotFoundException, UnAuthorizedException } from './error.middleware'
-import jwt from 'jsonwebtoken'
 import { userService } from '~/services/db/user.service'
+import { redisHandle } from '~/services/cache/client.cache'
+import { OauthService } from '~/oauth2'
 
-export function verifyUser(req: Request, res: Response, next: NextFunction) {
-  if (!req.cookies.accessToken) {
-    throw new UnAuthorizedException('Token is invalid, please login again!')
+export async function verifyUser(req: Request, res: Response, next: NextFunction) {
+  console.log(req.cookies)
+
+  const sessionId = req.cookies['backend.sid'].split('.')[0].split(':')[1]
+
+  const sessonRedis = await redisHandle.get(`backend:sess:${sessionId}`)
+
+  if (!req.cookies.accessToken || !sessonRedis) {
+    throw new UnAuthorizedException('invalid sessiom, please login again!')
   }
 
-  const token = req.cookies.accessToken
+  const token = req.cookies?.accessToken
   try {
-    const userDecoded = jwt.verify(token, process.env.JWT_SECRET!) as UserPayload
+    const userDecoded = OauthService.verifyToken(token!) as UserPayload
     req.currentUser = userDecoded
     next()
   } catch (error) {
