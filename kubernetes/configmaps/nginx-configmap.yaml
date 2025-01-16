@@ -25,9 +25,8 @@ data:
         listen 80;
         server_name _;
 
-        # Nueva ruta /app_backend
-        
-        location /app_backend/ {
+        # Bloque para /app_backend/get-categories
+        location /app_backend/get-categories {
           # Aplicar limitación de tasa de solicitudes
           limit_req zone=one burst=5;
 
@@ -36,12 +35,25 @@ data:
           proxy_cache_valid 200 302 10m;
           proxy_cache_valid 404 1m;
 
+          # Reescribir la URL /app_backend/get-categories a /api/v1/categories
+          rewrite ^/app_backend/get-categories$ /api/v1/categories break;
+
           # Configuración del proxy
           proxy_pass http://app_backend/;  # Nota la barra al final
           proxy_set_header Host $host;
           proxy_set_header X-Real-IP $remote_addr;
           proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
           proxy_set_header X-Forwarded-Proto $scheme;
+        }
+
+        # Bloquear el acceso directo a /app_backend/api/v1/categories
+        location /app_backend/api/v1/categories {
+          return 404;  # Devuelve un error 404
+        }
+
+        # Bloque para otras rutas bajo /app_backend
+        location /app_backend/ {
+          return 404;  # Devuelve un error 404 para cualquier otra ruta
         }
       }
     }
